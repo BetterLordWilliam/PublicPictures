@@ -1,16 +1,46 @@
-$pageTemplate = Get-Content -Raw "./indexTemplate.html"
-$itemTemplate = Get-Content -Raw "./tableElement.html"
+param(
+  [string]$rootPath=$PSScriptRoot
+)
 
-$indexChildItems  = Get-ChildItem
-$itemHtmlString   = ""
+$rootPageTemplate   = Get-Content -Raw "$rootPath\indexTemplate.html"
+$subPageTemplate    = Get-Content -Raw "$rootPath\subIndexTemplate.html"
+$itemTemplate       = Get-Content -Raw "$rootPath\tableElement.html"
 
-foreach ($item in $indexChildItems) {
-  # $item | `
-  #  Format-List -Property FullName,Name,BaseName,Extension,Length
-  $thing = $itemTemplate -f ($item.FullName,$item.Name,$item.BaseName,$item.Extension,$item.Length)
-  ($itemHtmlString += $thing) | Out-Null
+function generateContents {
+  param(
+    [Parameter(Mandatory)]
+    [string]$folderLocation,
+    [string]$parentLocation
+  )
+  
+  Write-Host $folderLocation -ForegroundColor Red
+  Write-Host $parentLocation -ForegroundColor Red
+
+  $childItems       = Get-ChildItem $folderLocation -Exclude @(".*")
+  $itemsHtmlString  = ""
+    
+  # Regular
+  foreach ($item in $childItems) {
+    $formattedTableRow = ($itemTemplate -f ($item.Name,$item.Name,$item.BaseName,$item.Extension,$item.Length)).Trim()
+    $itemsHtmlString += $formattedTableRow
+  }
+  
+  # Create the new index file
+  if (-not $parentLocation) {
+    ($rootPageTemplate -f $itemsHtmlString) | Out-File "$folderLocation\index.html" -Force
+  } else {
+    ($subPageTemplate -f "../$($parentLocation.BaseName)",$itemsHtmlString) | Out-File "$folderLocation\index.html" -Force
+  }
 }
 
-# Write-Host $itemHtmlString
+# Recursively for each subfolder
+Get-ChildItem -Path $rootPath -Directory -Recurse -Exclude @(".*") | ForEach-Object -Process {
+  generateContents `
+    -folderLocation $_ `
+    -parentLocation $_.Parent
+}
 
+# For the root directory
+generateContents `
+  -folderLocation $rootPath
 
