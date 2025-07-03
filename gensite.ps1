@@ -19,13 +19,11 @@ function generateContents {
   $childItems       = Get-ChildItem $folderLocation -Exclude @(".*")
   $itemsHtmlString  = ""
     
-  # Regular
   foreach ($item in $childItems) {
     $formattedTableRow = ($itemTemplate -f ($item.Name,$item.Name,$item.BaseName,$item.Extension,$item.Length)).Trim()
     $itemsHtmlString += $formattedTableRow
   }
   
-  # Create the new index file
   if (-not $parentLocation) {
     ($rootPageTemplate -f $itemsHtmlString) | Out-File "$folderLocation\index.html" -Force
   } else {
