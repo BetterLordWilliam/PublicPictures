@@ -2,9 +2,12 @@ param(
   [string]$rootPath=$PSScriptRoot
 )
 
-$rootPageTemplate   = Get-Content -Raw "$rootPath\indexTemplate.html"
-$subPageTemplate    = Get-Content -Raw "$rootPath\subIndexTemplate.html"
-$itemTemplate       = Get-Content -Raw "$rootPath\tableElement.html"
+$rootPageTemplate   = Get-Content -Raw "$rootPath\.html\indexTemplate.html"
+$subPageTemplate    = Get-Content -Raw "$rootPath\.html\subIndexTemplate.html"
+$itemTemplate       = Get-Content -Raw "$rootPath\.html\tableElement.html"
+
+$excludedFiles      = @( ".*", "index.html" )
+$excludedFolders    = @( ".*" )
 
 function generateContents
 {
@@ -17,7 +20,7 @@ function generateContents
   Write-Host $folderLocation -ForegroundColor Red
   Write-Host $parentLocation -ForegroundColor Red
 
-  $childItems       = Get-ChildItem $folderLocation -Exclude @(".*")
+  $childItems       = Get-ChildItem $folderLocation -Exclude $excludedFiles 
   $itemsHtmlString  = ""
     
   foreach ($item in $childItems)
@@ -44,7 +47,7 @@ function generateContents
 }
 
 # Recursively for each subfolder
-Get-ChildItem -Path $rootPath -Directory -Recurse -Exclude @(".*") |`
+Get-ChildItem -Path $rootPath -Directory -Recurse -Exclude $excludedFolders |`
   ForEach-Object -Process {
     generateContents `
       -folderLocation $_ `
