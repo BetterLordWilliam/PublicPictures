@@ -6,7 +6,8 @@ $rootPageTemplate   = Get-Content -Raw "$rootPath\indexTemplate.html"
 $subPageTemplate    = Get-Content -Raw "$rootPath\subIndexTemplate.html"
 $itemTemplate       = Get-Content -Raw "$rootPath\tableElement.html"
 
-function generateContents {
+function generateContents
+{
   param(
     [Parameter(Mandatory)]
     [string]$folderLocation,
@@ -19,15 +20,26 @@ function generateContents {
   $childItems       = Get-ChildItem $folderLocation -Exclude @(".*")
   $itemsHtmlString  = ""
     
-  foreach ($item in $childItems) {
-    $formattedTableRow = ($itemTemplate -f ($item.Name,$item.Name,$item.BaseName,$item.Extension,$item.Length)).Trim()
+  foreach ($item in $childItems)
+  {
+    $formattedTableRow = ($itemTemplate -f (`
+        $item.Name,
+        $item.Name,
+        $item.BaseName,
+        $item.Extension,
+        $item.Length
+      )).Trim()
     $itemsHtmlString += $formattedTableRow
   }
   
-  if (-not $parentLocation) {
-    ($rootPageTemplate -f $itemsHtmlString) | Out-File "$folderLocation\index.html" -Force
-  } else {
-    ($subPageTemplate -f "../$($parentLocation.BaseName)",$itemsHtmlString) | Out-File "$folderLocation\index.html" -Force
+  if (-not $parentLocation)
+  {
+    ($rootPageTemplate -f $itemsHtmlString) |`
+      Out-File "$folderLocation\index.html" -Force
+  } else
+  {
+    ($subPageTemplate -f "../$($parentLocation.BaseName)",$itemsHtmlString) |`
+      Out-File "$folderLocation\index.html" -Force
   }
 }
 
