@@ -44,11 +44,12 @@ function generateContents
 }
 
 # Recursively for each subfolder
-Get-ChildItem -Path $rootPath -Directory -Recurse -Exclude @(".*") | ForEach-Object -Process {
-  generateContents `
-    -folderLocation $_ `
-    -parentLocation $_.Parent
-}
+Get-ChildItem -Path $rootPath -Directory -Recurse -Exclude @(".*") |`
+  ForEach-Object -Process {
+    generateContents `
+      -folderLocation $_ `
+      -parentLocation $_.Parent
+  }
 
 # For the root directory
 generateContents `
