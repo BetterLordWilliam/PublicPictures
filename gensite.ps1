@@ -9,28 +9,42 @@ $itemTemplate           = Get-Content -Raw "$rootPath\.html\tableElement.html"
 
 $excludedFiles      = @( ".*", "index.html" )
 $excludedFolders    = @( ".*" )
-$headerLinks        = @(
+$headerStrings      = @(
   "https://betterlordwilliam.github.io/PublicPictures/images/Epic.png",
   ""
 )
 
+
 function generateHeader
 {
-  return ($websiteHeaderTemplate -f $headerLinks).Trim()
+  <#
+  Generates the header for a website page.
+  #>
+  param(
+    [Parameter(Mandatory)]
+    [string]$pageTitle
+  )
+
+  return ($websiteHeaderTemplate -f (, $pageTitle + $headerStrings)).Trim()
 }
+
 
 function generateContents
 {
+  <#
+  Generates the contents of the site, adding new table items for each sub item.
+  #>
   param(
     [Parameter(Mandatory)]
     [string]$folderLocation,
-    [string]$parentLocation
+    [string]$parentLocation,
+    [string]$pageTitle="Will Epic Website"
   )
   
   Write-Host $folderLocation -ForegroundColor Red
   Write-Host $parentLocation -ForegroundColor Red
   
-  $headerString     = generateHeader
+  $headerString     = generateHeader $pageTitle
   $childItems       = Get-ChildItem $folderLocation -Exclude $excludedFiles 
   $itemsHtmlString  = ""
     
@@ -57,15 +71,14 @@ function generateContents
   }
 }
 
-# Build the header string
-#
 
 # Recursively for each subfolder
 Get-ChildItem -Path $rootPath -Directory -Recurse -Exclude $excludedFolders |`
     ForEach-Object -Process {
     generateContents `
       -folderLocation $_ `
-      -parentLocation $_.Parent
+      -parentLocation $_.Parent `
+      -pageTitle $_.FullName
   }
 
 # For the root directory
