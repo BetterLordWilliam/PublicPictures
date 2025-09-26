@@ -78,7 +78,7 @@ Get-ChildItem -Path $rootPath -Directory -Recurse -Exclude $excludedFolders |`
     generateContents `
       -folderLocation $_ `
       -parentLocation $_.Parent `
-      -pageTitle $_.FullName
+      -pageTitle $_.BaseName
   }
 
 # For the root directory
